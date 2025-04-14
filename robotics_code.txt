@@ -1,0 +1,140 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+static const int ROWS=10;
+static const int COLS=10;
+
+int getCost(char c){
+    switch(c){
+        case 'S':return 0;
+        case 'G':return 0;
+        case '.':return 1;
+        case '~':return 3;
+        case '^':return 5;
+        case '#':return -1;
+        default:return -1;
+    }
+}
+
+int main(){
+     ////////////////
+    #ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    #endif
+    /////////////////
+
+        vector<vector<char>> grid={
+            {'S','.','.','.','.','~','.','.','^','.'},
+            {'#','#','#','.','.','~','#','.','^','.'},
+            {'.','.','.','#','.','.','#','.','.','.'},
+            {'.','~','~','#','.','.','.','.','.','.'},
+            {'.','.','.','.','.','#','#','#','#','.'},
+            {'^','^','.','.','.','.','.','.','~','.'},
+            {'#','.','.','.','.','#','~','~','~','.'},
+            {'.','.','#','#','.','.','.','.','.','.'},
+            {'.','.','.','.','.','^','^','^','^','G'},
+            {'.','#','#','#','#','#','#','#','.','.'}
+        };
+    
+        pair<int,int> start={-1,-1};
+        pair<int,int> goal={-1,-1};
+    
+        for(int r=0;r<ROWS;r++){
+            for(int c=0;c<COLS;c++){
+                if(grid[r][c]=='S'){
+                    start={r,c};
+                }else if(grid[r][c]=='G'){
+                    goal={r,c};
+                }
+            }
+        }
+    
+        if(start.first==-1||goal.first==-1){
+            cerr<<"ERROR: Could not find S or G in the grid.\n";
+            return 1;
+        }
+    
+        vector<vector<int>> dist(ROWS,vector<int>(COLS,INT_MAX));
+        dist[start.first][start.second]=0;
+    
+        vector<vector<pair<int,int>>> parent(
+            ROWS,
+            vector<pair<int,int>>(COLS,{-1,-1})
+        );
+    
+        typedef pair<int,pair<int,int>> State;
+        priority_queue<State,vector<State>,greater<State>> pq;
+        pq.push({0,{start.first,start.second}});
+    
+        vector<pair<int,int>> directions={
+            {-1,0},
+            {0,1},
+            {1,0},
+            {0,-1}
+        };
+    
+        while(!pq.empty()){
+            auto [currentCost,rc]=pq.top();
+            pq.pop();
+    
+            int r=rc.first;
+            int c=rc.second;
+    
+            if(currentCost>dist[r][c]){
+                continue;
+            }
+    
+            if(make_pair(r,c)==goal){
+                break;
+            }
+    
+            for(auto& d:directions){
+                int nr=r+d.first;
+                int nc=c+d.second;
+    
+                if(nr<0||nr>=ROWS||nc<0||nc>=COLS){
+                    continue;
+                }
+    
+                int cellCost=getCost(grid[nr][nc]);
+    
+                if(cellCost<0){
+                    continue;
+                }
+    
+                int newCost=dist[r][c]+cellCost;
+    
+                if(newCost<dist[nr][nc]){
+                    dist[nr][nc]=newCost;
+                    parent[nr][nc]={r,c};
+                    pq.push({newCost,{nr,nc}});
+                }
+            }
+        }
+    
+        if(dist[goal.first][goal.second]==INT_MAX){
+            cout<<"No path found from S to G.\n";
+            return 0;
+        }
+    
+        vector<pair<int,int>> path;
+        pair<int,int> cur=goal;
+    
+        while(cur.first!=-1&&cur.second!=-1){
+            path.push_back(cur);
+            cur=parent[cur.first][cur.second];
+        }
+    
+        reverse(path.begin(),path.end());
+    
+        cout<<"Path (row,col):\n";
+    
+        for(auto& p:path){
+            cout<<"("<<p.first<<","<<p.second<<")\n";
+        }
+    
+        cout<<"Total path cost="<<dist[goal.first][goal.second]<<endl;
+    
+        return 0;
+    }
