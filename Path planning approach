@@ -1,0 +1,11 @@
+Algorithm Used: Dijkstra's algorithm which I have explained below:
+Start at the source node (your robot’s position).Assign a cost of 0 to the start and ∞ (infinity) to all other nodes.
+Use a priority queue to always explore the cheapest known node next.
+For each neighbor of the current node:
+Calculate the new cost = current cost + cost to move to neighbor.
+If this new cost is lower than the known cost, update it.
+Add the neighbor to the queue for further exploration.
+Repeat until you reach the goal or the queue is empty.
+Uses a priority queue to always expand the most promising (cheapest) path first.
+Backtracked using a parent matrix to reconstruct the optimal path.
+
